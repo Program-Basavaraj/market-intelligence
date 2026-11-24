@@ -1,4 +1,4 @@
 {
   "_comment": "Add NSE trading holidays (YYYY-MM-DD) from the official NSE holiday circular each year. Weekends are handled automatically. Missing holidays only affect the 'stale data' warning, never prices.",
-  "nse_trading_holidays": []
+  "nse_trading_holidays": ["2026-11-24", "2026-12-25"]
 }
