@@ -9,7 +9,7 @@
  * (each production deploy costs Netlify credits — see docs/SETUP.md).
  */
 window.MI_CONFIG = {
-  dataBase: "./data/",
+  dataBase: "https://github.com/Program-Basavaraj/market-intelligence/blob/data/",
   learnUrl: "./learn.json",
   // Delayed quotes via the Netlify Function in netlify/functions/quotes.mjs (works only on Netlify or `netlify dev`).
   // Refreshes every refreshSeconds while the NSE market is open (09:15–15:30 IST) and the tab is visible.
