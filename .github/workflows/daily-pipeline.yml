@@ -1,0 +1,78 @@
+name: Daily market pipeline
+
+on:
+  schedule:
+    - cron: "45 13 * * 1-5"
+    - cron: "15 4,6,8,10 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      universe:
+        description: "Universe: nifty50 | nifty100 | nifty200 | nifty500 | all_nse"
+        required: false
+        default: ""
+      force_retrain:
+        description: "Retrain models now (true/false)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      MI_OUTPUT_DIR: ${{ github.workspace }}/_out
+      MI_STATE_DIR: ${{ github.workspace }}/_out/state
+      MI_CACHE_DIR: ${{ github.workspace }}/.cache
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore working cache (prices, fundamentals, models)
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: mi-cache-${{ github.run_id }}
+          restore-keys: mi-cache-
+
+      - name: Restore published state (news history, sent alerts)
+        run: |
+          mkdir -p _out/state
+          if git ls-remote --exit-code --heads origin data >/dev/null 2>&1; then
+            git fetch --depth=1 origin data
+            git archive FETCH_HEAD state 2>/dev/null | tar -x -C _out || echo "no previous state"
+          fi
+
+      - name: Run pipeline
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.universe }}" ]; then ARGS="$ARGS --universe ${{ github.event.inputs.universe }}"; fi
+          if [ "${{ github.event.inputs.force_retrain }}" = "true" ]; then ARGS="$ARGS --force-retrain"; fi
+          if [ "${{ github.event.schedule }}" = "15 4,6,8,10 * * 1-5" ]; then ARGS="$ARGS --skip-fundamentals"; fi
+          python -m pipeline.run $ARGS
+
+      - name: Publish data branch
+        run: |
+          cd _out
+          git init -q
+          git checkout -q -b data
+          git config user.name "market-pipeline-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Data update $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" data
