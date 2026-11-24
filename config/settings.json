@@ -1,0 +1,43 @@
+{
+  "_comment": "Research parameters. Secrets (Telegram token etc.) go in environment variables / GitHub Secrets, never here.",
+  "universe": "nifty500",
+  "history_years": 5,
+  "chart_days": 260,
+  "fundamentals_per_run": 80,
+  "fundamentals_max_age_days": 14,
+  "min_median_traded_value_cr": 1.0,
+  "stale_after_days": 4,
+  "risk_free_rate": 0.065,
+  "horizons": [2, 5, 10],
+  "neutral_band_k": 0.5,
+  "min_neutral_band": 0.004,
+  "retrain_every_days": 7,
+  "gate_min_brier_skill": 0.005,
+  "gate_min_samples": 2000,
+  "costs": {
+    "brokerage_pct": 0.03,
+    "stt_pct": 0.10,
+    "exchange_pct": 0.00297,
+    "stamp_buy_pct": 0.015,
+    "sebi_pct": 0.0001,
+    "gst_pct": 18.0,
+    "slippage_pct": 0.10
+  },
+  "usd_inr_fallback": 84.0,
+  "alerts": {
+    "min_probability": 0.60,
+    "min_order_size_ratio_pct": 5.0,
+    "volume_spike_x": 3.0,
+    "max_per_run": 25
+  },
+  "news_feeds": [
+    {"name": "NSE Corporate Announcements", "url": "https://nsearchives.nseindia.com/content/RSS/Online_announcements.xml", "official": true},
+    {"name": "Moneycontrol Buzzing Stocks", "url": "https://www.moneycontrol.com/rss/buzzingstocks.xml", "official": false},
+    {"name": "Moneycontrol Market Reports", "url": "https://www.moneycontrol.com/rss/marketreports.xml", "official": false},
+    {"name": "Economic Times Stocks", "url": "https://economictimes.indiatimes.com/markets/stocks/rssfeeds/2146842.cms", "official": false},
+    {"name": "Economic Times Markets", "url": "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms", "official": false},
+    {"name": "Business Standard Markets", "url": "https://www.business-standard.com/rss/markets-106.rss", "official": false},
+    {"name": "Mint Markets", "url": "https://www.livemint.com/rss/markets", "official": false},
+    {"name": "CNBC-TV18 Market", "url": "https://www.cnbctv18.com/commonfeeds/v1/cne/rss/market.xml", "official": false}
+  ]
+}

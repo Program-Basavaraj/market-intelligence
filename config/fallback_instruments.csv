@@ -1,0 +1,45 @@
+symbol,name,isin,series,industry,sector,cap_category
+RELIANCE,Reliance Industries Ltd,,EQ,Oil Gas & Consumable Fuels,Oil Gas & Consumable Fuels,Large
+HDFCBANK,HDFC Bank Ltd,,EQ,Financial Services,Financial Services,Large
+ICICIBANK,ICICI Bank Ltd,,EQ,Financial Services,Financial Services,Large
+SBIN,State Bank of India,,EQ,Financial Services,Financial Services,Large
+AXISBANK,Axis Bank Ltd,,EQ,Financial Services,Financial Services,Large
+KOTAKBANK,Kotak Mahindra Bank Ltd,,EQ,Financial Services,Financial Services,Large
+BAJFINANCE,Bajaj Finance Ltd,,EQ,Financial Services,Financial Services,Large
+BAJAJFINSV,Bajaj Finserv Ltd,,EQ,Financial Services,Financial Services,Large
+INFY,Infosys Ltd,,EQ,Information Technology,Information Technology,Large
+TCS,Tata Consultancy Services Ltd,,EQ,Information Technology,Information Technology,Large
+HCLTECH,HCL Technologies Ltd,,EQ,Information Technology,Information Technology,Large
+WIPRO,Wipro Ltd,,EQ,Information Technology,Information Technology,Large
+TECHM,Tech Mahindra Ltd,,EQ,Information Technology,Information Technology,Large
+BHARTIARTL,Bharti Airtel Ltd,,EQ,Telecommunication,Telecommunication,Large
+ITC,ITC Ltd,,EQ,Fast Moving Consumer Goods,Fast Moving Consumer Goods,Large
+HINDUNILVR,Hindustan Unilever Ltd,,EQ,Fast Moving Consumer Goods,Fast Moving Consumer Goods,Large
+NESTLEIND,Nestle India Ltd,,EQ,Fast Moving Consumer Goods,Fast Moving Consumer Goods,Large
+LT,Larsen & Toubro Ltd,,EQ,Construction,Construction,Large
+BEL,Bharat Electronics Ltd,,EQ,Capital Goods,Capital Goods,Large
+NTPC,NTPC Ltd,,EQ,Power,Power,Large
+POWERGRID,Power Grid Corporation of India Ltd,,EQ,Power,Power,Large
+ONGC,Oil & Natural Gas Corporation Ltd,,EQ,Oil Gas & Consumable Fuels,Oil Gas & Consumable Fuels,Large
+COALINDIA,Coal India Ltd,,EQ,Oil Gas & Consumable Fuels,Oil Gas & Consumable Fuels,Large
+MARUTI,Maruti Suzuki India Ltd,,EQ,Automobile and Auto Components,Automobile and Auto Components,Large
+M&M,Mahindra & Mahindra Ltd,,EQ,Automobile and Auto Components,Automobile and Auto Components,Large
+BAJAJ-AUTO,Bajaj Auto Ltd,,EQ,Automobile and Auto Components,Automobile and Auto Components,Large
+EICHERMOT,Eicher Motors Ltd,,EQ,Automobile and Auto Components,Automobile and Auto Components,Large
+SUNPHARMA,Sun Pharmaceutical Industries Ltd,,EQ,Healthcare,Healthcare,Large
+CIPLA,Cipla Ltd,,EQ,Healthcare,Healthcare,Large
+DRREDDY,Dr. Reddy's Laboratories Ltd,,EQ,Healthcare,Healthcare,Large
+APOLLOHOSP,Apollo Hospitals Enterprise Ltd,,EQ,Healthcare,Healthcare,Large
+TITAN,Titan Company Ltd,,EQ,Consumer Durables,Consumer Durables,Large
+ASIANPAINT,Asian Paints Ltd,,EQ,Consumer Durables,Consumer Durables,Large
+ULTRACEMCO,UltraTech Cement Ltd,,EQ,Construction Materials,Construction Materials,Large
+GRASIM,Grasim Industries Ltd,,EQ,Construction Materials,Construction Materials,Large
+TATASTEEL,Tata Steel Ltd,,EQ,Metals & Mining,Metals & Mining,Large
+JSWSTEEL,JSW Steel Ltd,,EQ,Metals & Mining,Metals & Mining,Large
+HINDALCO,Hindalco Industries Ltd,,EQ,Metals & Mining,Metals & Mining,Large
+ADANIPORTS,Adani Ports and Special Economic Zone Ltd,,EQ,Services,Services,Large
+ADANIENT,Adani Enterprises Ltd,,EQ,Metals & Mining,Metals & Mining,Large
+HDFCLIFE,HDFC Life Insurance Company Ltd,,EQ,Financial Services,Financial Services,Large
+SBILIFE,SBI Life Insurance Company Ltd,,EQ,Financial Services,Financial Services,Large
+TRENT,Trent Ltd,,EQ,Consumer Services,Consumer Services,Large
+TATACONSUM,Tata Consumer Products Ltd,,EQ,Fast Moving Consumer Goods,Fast Moving Consumer Goods,Large

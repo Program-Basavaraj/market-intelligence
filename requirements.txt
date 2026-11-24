@@ -1,0 +1,9 @@
+# Runtime (all open-source; licences: BSD-3 / Apache-2.0 / MIT)
+pandas>=2.1
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.4
+requests>=2.31
+yfinance>=0.2.54        # Apache-2.0; unofficial Yahoo Finance access - research use only
+# Tests
+pytest>=8.0

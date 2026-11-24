@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Intelligence — Indian stock research</title>
+  <meta name="description" content="End-of-day Indian stock market research: news intelligence, technical, fundamental and probabilistic swing assessments with Kannada and English explanations.">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">MI</div>
+      <div class="brand-name">Market Intelligence<small class="kn">ಮಾರುಕಟ್ಟೆ ಮಾಹಿತಿ ವೇದಿಕೆ</small></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <button class="btn menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+      <span class="data-badge" id="dataBadge"><span class="dot"></span><span>Loading data…</span></span>
+      <span class="data-badge" id="liveBadge" hidden></span>
+      <span class="spacer"></span>
+      <input type="search" id="globalSearch" placeholder="Search symbol or company…" list="symbolList" autocomplete="off" aria-label="Search stock">
+      <datalist id="symbolList"></datalist>
+      <button class="btn" id="themeBtn" title="Toggle dark mode">◐</button>
+    </div>
+    <div id="view"><div class="loader">Loading…</div></div>
+    <footer class="footer">
+      Research tool only — not investment advice, not a SEBI-registered research service, no guarantee of any price movement.
+      Analysis uses end-of-day prices; quotes marked ● are delayed (not guaranteed real-time). Both come from an unofficial source (Yahoo Finance). News shows headlines and links only.
+      <span class="kn">ಸಂಶೋಧನೆಗಾಗಿ ಮಾತ್ರ — ಹೂಡಿಕೆ ಸಲಹೆ ಅಲ್ಲ. ಬೆಲೆಗಳು ದಿನದ ಅಂತ್ಯದ (ತಡವಾದ) ದತ್ತಾಂಶ.</span>
+    </footer>
+  </main>
+</div>
+<script src="js/config.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
+<script src="js/app.js" defer></script>
+</body>
+</html>
