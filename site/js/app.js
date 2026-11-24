@@ -16,11 +16,16 @@
   const inr = (v, d = 2) => (isNum(v) ? "₹" + fmt(v, d) : "—");
   const cr = (v) => (isNum(v) ? "₹" + fmt(v / 1e7, 0) + " cr" : "—");
   const chg = (v, d = 2) => (isNum(v) ? `<span class="${v > 0 ? "up" : v < 0 ? "down" : ""}">${v > 0 ? "▲ +" : v < 0 ? "▼ " : ""}${fmt(v, d)}%</span>` : "—");
-  const dt = (s) => { if (!s) return "—"; const d = new Date(s); return isNaN(d) ? esc(s) : d.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: s.length > 10 ? "short" : undefined, timeZone: "Asia/Kolkata" }); };
-  const day = (s) => (s ? new Date(s).toLocaleDateString("en-IN", { dateStyle: "medium", timeZone: "Asia/Kolkata" }) : "—");
+  const dt = (s) => { if (!s) return "—"; const d = new Date(s); return isNaN(d) ? esc(s) : d.toLocaleString(LOC(), { dateStyle: "medium", timeStyle: s.length > 10 ? "short" : undefined, timeZone: "Asia/Kolkata" }); };
+  const day = (s) => (s ? new Date(s).toLocaleDateString(LOC(), { dateStyle: "medium", timeZone: "Asia/Kolkata" }) : "—");
   const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   const stockLink = (file, sym) => `<a href="#/stock/${encodeURIComponent(file || sym)}">${esc(sym)}</a>`;
-  const bi = (en, kn) => `${esc(en)} <span class="kn muted">${esc(kn)}</span>`;
+  const I18N = window.I18N || { lang: "en", t: (x) => x, locale: () => "en-IN", start() {}, set() {} };
+  const LOC = () => I18N.locale();
+  const T = (x) => I18N.t(x);
+  // heading in the selected language only (CSS hides the other); bp() = same for longer authored HTML
+  const bi = (en, kn) => `<span class="t-en">${esc(en)}</span><span class="t-kn kn">${esc(kn)}</span>`;
+  const bp = (en, kn) => `<span class="t-en">${en}</span><span class="t-kn kn">${kn}</span>`;
 
   async function getJSON(name, { base = BASE, fresh = false } = {}) {
     const url = name.startsWith("http") || name.startsWith("./") ? name : base + name;
@@ -99,7 +104,7 @@
     const mins = Number(p.hour) * 60 + Number(p.minute);
     return !["Sat", "Sun"].includes(p.weekday) && mins >= 555 && mins <= 935;   // 09:15–15:35 IST
   }
-  const timeIST = (iso) => (iso ? new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Asia/Kolkata" }) + " IST" : "—");
+  const timeIST = (iso) => (iso ? new Date(iso).toLocaleTimeString(LOC(), { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Asia/Kolkata" }) + " IST" : "—");
   async function fetchQuotes(symbols) {
     const out = {};
     for (let i = 0; i < symbols.length; i += 60) {
@@ -178,7 +183,7 @@
   ];
   function renderNav() {
     $("#nav").innerHTML = NAV.map(([g, items]) => `<div class="nav-group">${esc(g)}</div>` +
-      items.map(([h, en, kn]) => `<a href="${h}" data-h="${h}"><span>${esc(en)}</span><span class="kn">${esc(kn)}</span></a>`).join("")).join("");
+      items.map(([h, en, kn]) => `<a href="${h}" data-h="${h}">${bi(en, kn)}</a>`).join("")).join("");
   }
   function markNav() {
     const h = location.hash || "#/";
@@ -201,16 +206,24 @@
     }
   }
   function setupScreen(err) {
-    view.innerHTML = `<div class="page-head"><div><h1>Welcome — no data has been generated yet</h1>
-      <p>The website is deployed, but the daily data job has not produced data at <code>${esc(BASE)}</code> yet.</p></div></div>
-      <div class="card"><h2>Finish setup <span class="kn">ಸಿದ್ಧತೆ ಪೂರ್ಣಗೊಳಿಸಿ</span></h2>
-      <ol class="clean">
+    view.innerHTML = `<div class="page-head"><div><h1>${bi("Welcome — no data has been generated yet", "ಸ್ವಾಗತ — ಇನ್ನೂ ದತ್ತಾಂಶ ತಯಾರಾಗಿಲ್ಲ")}</h1>
+      <p>${bp(`The website is deployed, but the daily data job has not produced data at <code>${esc(BASE)}</code> yet.`,
+              `ವೆಬ್‌ಸೈಟ್ ಸಿದ್ಧವಾಗಿದೆ, ಆದರೆ ದೈನಂದಿನ ದತ್ತಾಂಶ ಕೆಲಸ ಇನ್ನೂ ಈ ವಿಳಾಸದಲ್ಲಿ ದತ್ತಾಂಶ ತಯಾರಿಸಿಲ್ಲ: <code>${esc(BASE)}</code>`)}</p></div></div>
+      <div class="card"><h2>${bi("Finish setup", "ಸಿದ್ಧತೆ ಪೂರ್ಣಗೊಳಿಸಿ")}</h2>
+      ${bp(`<ol class="clean">
         <li>Push this project to a <strong>public</strong> GitHub repository.</li>
         <li>In GitHub → <em>Actions</em>, enable workflows and run <strong>“Daily market pipeline”</strong> once (Run workflow).</li>
         <li>Edit <code>site/js/config.js</code> and set <code>dataBase</code> to <code>https://raw.githubusercontent.com/&lt;user&gt;/&lt;repo&gt;/data/</code>, then redeploy Netlify once.</li>
         <li>Optional: add <code>TELEGRAM_BOT_TOKEN</code> and <code>TELEGRAM_CHAT_ID</code> as GitHub Secrets for alerts.</li>
       </ol>
-      <p class="muted">Full guide: <code>docs/SETUP.md</code> in the project. Technical detail: ${esc(err?.message || "")}</p></div>
+      <p class="muted">Full guide: <code>docs/SETUP.md</code> in the project. Technical detail: ${esc(err?.message || "")}</p>`,
+      `<ol class="clean">
+        <li>ಈ ಯೋಜನೆಯನ್ನು <strong>ಸಾರ್ವಜನಿಕ (public)</strong> GitHub repository ಗೆ ಹಾಕಿ.</li>
+        <li>GitHub ನಲ್ಲಿ <em>Actions</em> ತೆರೆಯಿರಿ ಮತ್ತು <strong>“Daily market pipeline”</strong> ಅನ್ನು ಒಮ್ಮೆ ಓಡಿಸಿ (Run workflow).</li>
+        <li><code>site/js/config.js</code> ನಲ್ಲಿ <code>dataBase</code> ಅನ್ನು <code>https://raw.githubusercontent.com/&lt;user&gt;/&lt;repo&gt;/data/</code> ಎಂದು ಬದಲಿಸಿ; ನಂತರ Netlify ಅನ್ನು ಒಮ್ಮೆ ಮರುನಿಯೋಜಿಸಿ.</li>
+        <li>ಐಚ್ಛಿಕ: ಎಚ್ಚರಿಕೆಗಳಿಗಾಗಿ <code>TELEGRAM_BOT_TOKEN</code> ಮತ್ತು <code>TELEGRAM_CHAT_ID</code> ಅನ್ನು GitHub Secrets ಆಗಿ ಸೇರಿಸಿ.</li>
+      </ol>
+      <p class="muted">ಸಂಪೂರ್ಣ ಮಾರ್ಗದರ್ಶಿ: <code>docs/SETUP.md</code>. ತಾಂತ್ರಿಕ ವಿವರ: ${esc(err?.message || "")}</p>`)}</div>
       <div class="section"><a class="btn" href="#/learn">Meanwhile, open the Learning centre →</a></div>`;
   }
 
@@ -224,13 +237,14 @@
     const topNews = [...(news.items || [])].filter((n) => n.symbol).sort((a, b) => b.importance - a.importance).slice(0, 8);
     view.innerHTML = `
       <div class="page-head"><div><h1>${bi("Market overview", "ಮಾರುಕಟ್ಟೆ ಅವಲೋಕನ")}</h1>
-      <p>Indian equities, end-of-day as of <strong>${day(ov.market_date)}</strong>. Index values are delayed and for research only.</p></div></div>
+      <p>${bp(`Indian equities, end-of-day as of <strong>${day(ov.market_date)}</strong>. Index values are delayed and for research only.`,
+          `ಭಾರತೀಯ ಷೇರುಗಳು — <strong>${day(ov.market_date)}</strong> ರ ದಿನದ ಅಂತ್ಯದ ದತ್ತಾಂಶ. ಸೂಚ್ಯಂಕ ಮೌಲ್ಯಗಳು ತಡವಾದವು; ಸಂಶೋಧನೆಗಾಗಿ ಮಾತ್ರ.`)}</p></div></div>
       ${ov.market_context?.nifty_below_200dma ? `<div class="notice"><strong>Market context:</strong> Nifty 50 is below its 200-day average — a weaker backdrop for bullish setups.</div>` : ""}
       <div class="grid g4">${idx.slice(0, 8).map((i) => `<div class="card tile"><div class="label">${esc(i.name)}</div>
         <div class="value" data-live-price="${esc(i.ticker)}" data-fmt="num">${fmt(i.last)}</div><div class="sub"><span data-live-chg="${esc(i.ticker)}">${chg(i.chg_1d)}</span> 1D · ${chg(i.chg_20d)} 1M</div>${sparkline(i.spark)}
         <div class="muted" style="font-size:11px"><span data-live-time="${esc(i.ticker)}">close ${day(i.date)}</span> · 6-month trend</div></div>`).join("") || `<div class="card">Index data unavailable — see System status.</div>`}</div>
       <div class="grid g4 section">
-        <div class="card tile"><div class="label">Advances / Declines <span class="kn">ಏರಿಕೆ / ಇಳಿಕೆ</span></div><div class="value">${b.advances ?? "—"} / ${b.declines ?? "—"}</div><div class="sub muted">A/D ratio ${fmt(b.ad_ratio)}</div></div>
+        <div class="card tile"><div class="label">${bi("Advances / Declines", "ಏರಿಕೆ / ಇಳಿಕೆ")}</div><div class="value">${b.advances ?? "—"} / ${b.declines ?? "—"}</div><div class="sub muted">A/D ratio ${fmt(b.ad_ratio)}</div></div>
         <div class="card tile"><div class="label">Above 200-day average</div><div class="value">${fmt(b.pct_above_200dma, 1)}%</div><div class="sub muted">of tracked stocks</div></div>
         <div class="card tile"><div class="label">Breakouts / Breakdowns</div><div class="value">${b.breakouts ?? "—"} / ${b.breakdowns ?? "—"}</div><div class="sub muted">20-day range, volume ≥ 1.5×</div></div>
         <div class="card tile"><div class="label">Model signals (${hs.map((h) => h + "d").join(" / ")})</div>
@@ -260,7 +274,7 @@
   function newsRow(n) {
     const oa = n.order_analysis || {};
     return `<div class="flag"><div style="min-width:0">
-      <div><a href="${safeUrl(n.url)}" target="_blank" rel="noopener noreferrer nofollow">${esc(n.headline)}</a></div>
+      <div class="notranslate"><a href="${safeUrl(n.url)}" target="_blank" rel="noopener noreferrer nofollow">${esc(n.headline)}</a></div>
       <div class="muted" style="font-size:12px;display:flex;gap:6px;flex-wrap:wrap;margin-top:3px">
         ${n.verified ? `<span class="pill verified">Exchange filing</span>` : `<span class="pill">Media report</span>`}
         <span class="pill cat">${esc(n.category_label)}</span>
@@ -270,7 +284,7 @@
         ${isNum(oa.order_size_ratio_pct) ? `<span>· order = <strong>${fmt(oa.order_size_ratio_pct, 1)}%</strong> of revenue (${esc(oa.materiality)})</span>` : ""}
         ${n.repeat_of ? `<span>· similar to an earlier item</span>` : ""}
       </div>
-      <details style="font-size:12.5px;margin-top:3px"><summary class="muted">Explain · ವಿವರಣೆ</summary><p>${esc(n.explain_en)}</p><p class="kn">${esc(n.explain_kn)}</p></details>
+      <details style="font-size:12.5px;margin-top:3px"><summary class="muted">${bi("Explain", "ವಿವರಣೆ")}</summary><p>${bp(esc(n.explain_en), esc(n.explain_kn))}</p></details>
     </div></div>`;
   }
 
@@ -282,8 +296,10 @@
     const st = { q: "", sector: "", cap: preset === "smallcap" ? "Small" : preset === "midcap" ? "Mid" : "", exch: "", h: hs.includes("5") ? "5" : hs[0],
       label: ["bullish", "bearish", "neutral"].includes(preset) ? preset : "", minP: 0, liquidOnly: true, minVol: 0 };
     const title = { bullish: "Bullish scanner", bearish: "Bearish scanner", neutral: "Neutral stocks", smallcap: "Small-cap scanner", midcap: "Mid-cap scanner" }[preset] || "Stock scanner";
-    view.innerHTML = `<div class="page-head"><div><h1>${esc(title)}</h1><p>Every tracked stock with its separate technical score, fundamental label, news sentiment and the calibrated model probabilities for the chosen swing horizon.
-      <strong>Labels only appear when the model passed out-of-sample validation and the probability crossed a validated threshold.</strong></p></div></div>
+    view.innerHTML = `<div class="page-head"><div><h1>${esc(title)}</h1><p>${bp(`Every tracked stock with its separate technical score, fundamental label, news sentiment and the calibrated model probabilities for the chosen swing horizon.
+      <strong>Labels only appear when the model passed out-of-sample validation and the probability crossed a validated threshold.</strong>`,
+      `ಪ್ರತಿ ಷೇರಿನ ತಾಂತ್ರಿಕ ಅಂಕ, ಮೂಲಭೂತ ಮೌಲ್ಯಮಾಪನ, ಸುದ್ದಿ ಭಾವನೆ ಮತ್ತು ಆಯ್ಕೆ ಮಾಡಿದ ಅವಧಿಯ ಮಾದರಿ ಸಂಭವನೀಯತೆಗಳು — ಎಲ್ಲವೂ ಪ್ರತ್ಯೇಕವಾಗಿ.
+      <strong>ಮಾದರಿ ಹೊರಗಿನ ಪರೀಕ್ಷೆಯಲ್ಲಿ ಉತ್ತೀರ್ಣವಾಗಿ, ಸಂಭವನೀಯತೆ ಪರಿಶೀಲಿತ ಮಿತಿಯನ್ನು ದಾಟಿದಾಗ ಮಾತ್ರ ಏರುಮುಖ/ಇಳಿಮುಖ ಎಂದು ತೋರಿಸಲಾಗುತ್ತದೆ.</strong>`)}</p></div></div>
       <div class="filters">
         <input type="search" id="fq" placeholder="Filter symbol / name">
         <label>Horizon <select id="fh">${hs.map((h) => `<option value="${h}" ${h === st.h ? "selected" : ""}>${h} trading days</option>`).join("")}</select></label>
@@ -304,7 +320,7 @@
         (!st.minP || Math.max(r.horizons[st.h]?.p?.bullish || 0, r.horizons[st.h]?.p?.bearish || 0) >= st.minP));
       const H = (r) => r.horizons[st.h] || {};
       sortableTable($("#tbl"), data, [
-        { key: "symbol", title: "Stock", cls: "sym", render: (r) => `${stockLink(r.file, r.symbol)}<span class="name">${esc(r.name)}</span>` },
+        { key: "symbol", title: "Stock", cls: "sym", render: (r) => `${stockLink(r.file, r.symbol)}<span class="name notranslate">${esc(r.name)}</span>` },
         { key: "sector", title: "Sector", render: (r) => `<span class="secondary">${esc(r.sector)}</span><br><small>${esc(r.cap)}</small>` },
         { key: "price", title: "Price", num: true, render: (r) => `<span data-live-price="${esc(r.symbol)}">${inr(r.price)}</span><br><small>EOD ${day(r.date)}${r.stale ? " ⚠" : ""}</small>` },
         { key: "chg_1d", title: "1D", num: true, render: (r) => `<span data-live-chg="${esc(r.symbol)}">${chg(r.chg_1d)}</span>` },
@@ -330,7 +346,7 @@
     const last = ch.close[ch.close.length - 1], prev = ch.close[ch.close.length - 2];
     const ind = s.indicators;
     view.innerHTML = `
-      <div class="page-head"><div><h1>${esc(s.name)} <span class="muted">${esc(s.symbol)}</span></h1>
+      <div class="page-head"><div><h1 class="notranslate">${esc(s.name)} <span class="muted">${esc(s.symbol)}</span></h1>
         <p>NSE: <strong>${esc(s.symbol)}</strong> ${s.bse_code ? `· BSE: <strong>${esc(s.bse_code)}</strong>` : ""} · ISIN ${esc(s.isin || "—")} · ${esc(s.sector || "—")} · ${esc(s.cap_category || "")}-cap <small>(${esc(s.cap_source || "")})</small></p></div>
         <div style="text-align:right"><div style="font-size:1.6rem;font-weight:650" data-live-price="${esc(s.symbol)}">${inr(last)}</div>
         <div><span data-live-chg="${esc(s.symbol)}">${chg(((last / prev) - 1) * 100)}</span> · <span data-live-time="${esc(s.symbol)}">close of ${day(q.last_date)}</span></div>
@@ -356,7 +372,7 @@
           <dt>Stop-loss scenario</dt><dd>${inr(rec.scenarios.stop_loss_scenario)}</dd><dt>Target scenario</dt><dd>${inr(rec.scenarios.target_scenario)}</dd>
           <dt>Risk / reward</dt><dd>${fmt(rec.scenarios.risk_reward)}</dd><dt>Support</dt><dd>${rec.support.map((x) => `${inr(x.level)} (${x.touches}×)`).join(", ") || "—"}</dd>
           <dt>Resistance</dt><dd>${rec.resistance.map((x) => `${inr(x.level)} (${x.touches}×)`).join(", ") || "—"}</dd></dl><p class="muted">${esc(rec.scenarios.method)}</p>` : "<p class='muted'>Not enough data.</p>"}</div>
-        <div class="card"><h3>Main reasons this could fail <span class="kn muted">ವಿಫಲವಾಗಬಹುದಾದ ಕಾರಣಗಳು</span></h3><ul class="clean">${rec.failure_reasons.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="muted">${esc(rec.disclaimer)}</p></div>
+        <div class="card"><h3>${bi("Main reasons this could fail", "ವಿಫಲವಾಗಬಹುದಾದ ಮುಖ್ಯ ಕಾರಣಗಳು")}</h3><ul class="clean">${rec.failure_reasons.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="muted">${esc(rec.disclaimer)}</p></div>
       </div>
 
       <div class="card section"><h2>${bi("Price chart", "ಬೆಲೆ ಚಾರ್ಟ್")}<span class="filters" style="margin:0" id="ovl">
@@ -509,8 +525,10 @@
     const sectors = [...new Set(items.map((x) => x.sector).filter(Boolean))].sort();
     const st = { q: "", cat: "", sent: "", sector: "", days: 7, matched: false, verified: false };
     const title = { orders: ["Order-win scanner", "ಆರ್ಡರ್ ಗೆಲುವು ಶೋಧಕ"], announcements: ["Corporate announcement scanner", "ಕಾರ್ಪೊರೇಟ್ ಪ್ರಕಟಣೆಗಳು"] }[mode] || ["Market news", "ಮಾರುಕಟ್ಟೆ ಸುದ್ದಿ"];
-    view.innerHTML = `<div class="page-head"><div><h1>${bi(...title)}</h1><p>${esc(n.note)} Items are classified automatically (rules + text similarity); check the original before acting.
-      ${mode === "orders" ? "<br><strong>Order Size Ratio = order value ÷ annual revenue × 100.</strong> A large order is not automatically bullish — margins, execution time and funding matter." : ""}</p></div></div>
+    view.innerHTML = `<div class="page-head"><div><h1>${bi(...title)}</h1><p>${bp(`${esc(n.note)} Items are classified automatically (rules + text similarity); check the original before acting.
+      ${mode === "orders" ? "<br><strong>Order Size Ratio = order value ÷ annual revenue × 100.</strong> A large order is not automatically bullish — margins, execution time and funding matter." : ""}`,
+      `ಶೀರ್ಷಿಕೆ ಮತ್ತು ಮೂಲ ಲಿಂಕ್ ಮಾತ್ರ ತೋರಿಸಲಾಗಿದೆ; ಪೂರ್ಣ ಸುದ್ದಿಗೆ ಮೂಲವನ್ನು ತೆರೆಯಿರಿ. ವರ್ಗೀಕರಣ ಸ್ವಯಂಚಾಲಿತ (ನಿಯಮಗಳು + ಪಠ್ಯ ಹೋಲಿಕೆ); ನಿರ್ಧಾರಕ್ಕೆ ಮೊದಲು ಮೂಲವನ್ನು ಪರಿಶೀಲಿಸಿ.
+      ${mode === "orders" ? "<br><strong>ಆರ್ಡರ್ ಗಾತ್ರ ಅನುಪಾತ = ಆರ್ಡರ್ ಮೊತ್ತ ÷ ವಾರ್ಷಿಕ ಆದಾಯ × 100.</strong> ದೊಡ್ಡ ಆರ್ಡರ್ ಬಂದ ಮಾತ್ರಕ್ಕೆ ಏರುಮುಖ ಎಂದಲ್ಲ — ಲಾಭಾಂಶ, ಅನುಷ್ಠಾನ ಅವಧಿ ಮತ್ತು ಹಣಕಾಸು ಮುಖ್ಯ." : ""}`)}</p></div></div>
       <div class="filters"><input type="search" id="nq" placeholder="Search headline / symbol">
         ${mode ? "" : `<label>Category <select id="nc"><option value="">All</option>${Object.entries(n.categories || {}).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("")}<option value="other">Other</option></select></label>`}
         <label>Sentiment <select id="ns"><option value="">All</option><option value="pos">Positive</option><option value="neg">Negative</option><option value="neu">Neutral</option></select></label>
@@ -527,7 +545,7 @@
         sortableTable($("#nlist"), data, [
           { key: "published", title: "Date", render: (r) => dt(r.published) },
           { key: "symbol", title: "Company", cls: "sym", render: (r) => (r.symbol ? stockLink(r.symbol.replace(/[^A-Za-z0-9_-]/g, "_"), r.symbol) : "<span class='muted'>unmatched</span>") },
-          { key: "headline", title: "Headline", render: (r) => `<a href="${safeUrl(r.url)}" target="_blank" rel="noopener noreferrer nofollow">${esc(r.headline)}</a><br><small>${esc(r.source)} ${r.verified ? "· ✔ filing" : "· media"}</small>` },
+          { key: "headline", title: "Headline", cls: "notranslate-cell", render: (r) => `<a class="notranslate" href="${safeUrl(r.url)}" target="_blank" rel="noopener noreferrer nofollow">${esc(r.headline)}</a><br><small>${esc(r.source)} ${r.verified ? "· ✔ filing" : "· media"}</small>` },
           { key: "ov", title: "Order (₹ cr)", num: true, sort: (r) => r.order_analysis?.order_value_cr, render: (r) => fmt(r.order_analysis?.order_value_cr, 0) },
           { key: "rev", title: "Revenue (₹ cr)", num: true, sort: (r) => r.order_analysis?.annual_revenue_cr, render: (r) => fmt(r.order_analysis?.annual_revenue_cr, 0) },
           { key: "osr", title: "Order size ratio", num: true, sort: (r) => r.order_analysis?.order_size_ratio_pct, render: (r) => (isNum(r.order_analysis?.order_size_ratio_pct) ? fmt(r.order_analysis.order_size_ratio_pct, 1) + "%" : "—") },
@@ -547,8 +565,10 @@
     const m = await getJSON("model.json");
     const hs = Object.keys(m.horizons || {});
     view.innerHTML = `<div class="page-head"><div><h1>${bi("Model performance", "ಮಾದರಿ ಕಾರ್ಯಕ್ಷಮತೆ")}</h1>
-      <p>All numbers are <strong>out-of-sample</strong> (expanding walk-forward, purge gap = horizon). A model is used only if it beats the base-rate forecast with a bootstrap-confirmed margin.
-      Intraday: ${esc(m.intraday?.reason)}.</p></div></div>
+      <p>${bp(`All numbers are <strong>out-of-sample</strong> (expanding walk-forward, purge gap = horizon). A model is used only if it beats the base-rate forecast with a bootstrap-confirmed margin.
+      Intraday: ${esc(m.intraday?.reason)}.`,
+      `ಎಲ್ಲಾ ಸಂಖ್ಯೆಗಳು <strong>ತರಬೇತಿಗೆ ಬಳಸದ (out-of-sample)</strong> ದತ್ತಾಂಶದ ಮೇಲಿನವು (ಮುಂದೆ ಸಾಗುವ ಪರೀಕ್ಷೆ, ಅವಧಿಯಷ್ಟು ಅಂತರ). ಸರಳ ಮೂಲ ಆವರ್ತನದ ಮುನ್ಸೂಚನೆಗಿಂತ ಖಚಿತವಾಗಿ ಉತ್ತಮವಾದರೆ ಮಾತ್ರ ಮಾದರಿಯನ್ನು ಬಳಸಲಾಗುತ್ತದೆ.
+      ದಿನದೊಳಗಿನ ಮಾದರಿ: ಅಧಿಕೃತ ನೇರ ದತ್ತಾಂಶ ಬೇಕು.`)}</p></div></div>
       ${hs.map((h) => { const r = m.horizons[h]; const best = r.metrics?.[r.selected_model] || {};
         return `<div class="card section"><h2>${h}-day swing model ${r.gate?.passed ? `<span class="pill verified">Validated — in use</span>` : `<span class="pill insufficient">Not validated — no recommendations</span>`}</h2>
         ${r.gate?.passed ? "" : `<div class="notice"><strong>Why not released:</strong> ${(r.gate?.reasons || []).map(esc).join("; ")}</div>`}
@@ -572,17 +592,18 @@
       const rel = best?.reliability_bullish || [];
       const el = $(`#rel${h}`);
       if (el && rel.length) plot(el, [
-        { type: "scatter", mode: "lines", x: [0, 1], y: [0, 1], name: "Perfect calibration", line: { color: css("--text-muted"), width: 1, dash: "dot" }, hoverinfo: "skip" },
+        { type: "scatter", mode: "lines", x: [0, 1], y: [0, 1], name: T("Perfect calibration"), line: { color: css("--text-muted"), width: 1, dash: "dot" }, hoverinfo: "skip" },
         { type: "scatter", mode: "lines+markers", x: rel.map((b) => b.mean_predicted), y: rel.map((b) => b.observed), name: "Model", text: rel.map((b) => b.n),
           line: { color: css("--series-1"), width: 2 }, marker: { size: 8, color: css("--series-1"), line: { color: css("--surface-1"), width: 2 } }, hovertemplate: "predicted %{x:.2f} → observed %{y:.2f} (n=%{text})<extra></extra>" }],
-        { height: 260, hovermode: "closest", xaxis: { range: [0, 1], title: { text: "Predicted P(bullish)" }, gridcolor: css("--border"), type: "linear" }, yaxis: { range: [0, 1], title: { text: "Observed frequency" }, gridcolor: css("--border"), tickformat: ".1f" } });
+        { height: 260, hovermode: "closest", xaxis: { range: [0, 1], title: { text: T("Predicted P(bullish)") }, gridcolor: css("--border"), type: "linear" }, yaxis: { range: [0, 1], title: { text: T("Observed frequency") }, gridcolor: css("--border"), tickformat: ".1f" } });
     }
   }
 
   async function pageBacktest() {
     const b = await getJSON("backtest.json");
     const hs = Object.keys(b.horizons || {});
-    view.innerHTML = `<div class="page-head"><div><h1>${bi("Historical backtesting", "ಐತಿಹಾಸಿಕ ಹಿಂಪರೀಕ್ಷೆ")}</h1><p>Out-of-sample signals only. Buy at the next session's open, sell at the close after the horizon, equal weight, Indian delivery costs (STT, stamp duty, exchange, SEBI, GST, brokerage, slippage). Past results do not predict future results.</p></div></div>
+    view.innerHTML = `<div class="page-head"><div><h1>${bi("Historical backtesting", "ಐತಿಹಾಸಿಕ ಹಿಂಪರೀಕ್ಷೆ")}</h1><p>${bp("Out-of-sample signals only. Buy at the next session's open, sell at the close after the horizon, equal weight, Indian delivery costs (STT, stamp duty, exchange, SEBI, GST, brokerage, slippage). Past results do not predict future results.",
+  "ತರಬೇತಿಗೆ ಬಳಸದ ಅವಧಿಯ ಸಂಕೇತಗಳು ಮಾತ್ರ. ಮುಂದಿನ ದಿನದ ಆರಂಭ ಬೆಲೆಯಲ್ಲಿ ಖರೀದಿ, ಅವಧಿಯ ಕೊನೆಯ ಮುಕ್ತಾಯ ಬೆಲೆಯಲ್ಲಿ ಮಾರಾಟ, ಸಮಾನ ತೂಕ, ಭಾರತೀಯ ಡೆಲಿವರಿ ವೆಚ್ಚಗಳು (STT, ಮುದ್ರಾಂಕ ಶುಲ್ಕ, ವಿನಿಮಯ, SEBI, GST, ದಲ್ಲಾಳಿ, ಜಾರಿಕೆ). ಹಿಂದಿನ ಫಲಿತಾಂಶಗಳು ಭವಿಷ್ಯವನ್ನು ಖಚಿತಪಡಿಸುವುದಿಲ್ಲ.")}</p></div></div>
       ${hs.map((h) => { const r = b.horizons[h]; if (!r.available) return `<div class="card section"><h2>${h}-day</h2><p class="muted">${esc(r.reason)}</p></div>`;
         const S = r.strategy, B = r.benchmark_equal_weight_universe;
         return `<div class="card section"><h2>${h}-day swing · threshold ${r.threshold} · ${esc(r.model)}</h2>
@@ -597,16 +618,16 @@
       if (!r.available) continue;
       const x = r.equity_curve.map((p) => p.date);
       plot($(`#eq${h}`), [
-        { type: "scatter", mode: "lines", x, y: r.equity_curve.map((p) => p.strategy), name: "Strategy", line: { color: css("--series-1"), width: 2 }, hovertemplate: "Strategy: %{y:.3f}<extra></extra>" },
-        { type: "scatter", mode: "lines", x, y: r.equity_curve.map((p) => p.benchmark), name: "All tracked stocks (equal weight)", line: { color: css("--series-2"), width: 2 }, hovertemplate: "Benchmark: %{y:.3f}<extra></extra>" }],
-        { height: 300, yaxis: { gridcolor: css("--border"), tickformat: ".2f", title: { text: "Growth of ₹1" } } });
+        { type: "scatter", mode: "lines", x, y: r.equity_curve.map((p) => p.strategy), name: T("Strategy"), line: { color: css("--series-1"), width: 2 }, hovertemplate: "Strategy: %{y:.3f}<extra></extra>" },
+        { type: "scatter", mode: "lines", x, y: r.equity_curve.map((p) => p.benchmark), name: T("All tracked stocks (equal weight)"), line: { color: css("--series-2"), width: 2 }, hovertemplate: "Benchmark: %{y:.3f}<extra></extra>" }],
+        { height: 300, yaxis: { gridcolor: css("--border"), tickformat: ".2f", title: { text: T("Growth of ₹1") } } });
     }
   }
 
   async function pageCompare(param) {
     const sc = await getJSON("scanner.json");
     const pre = (param || "").split(",").filter(Boolean).slice(0, 3);
-    view.innerHTML = `<div class="page-head"><div><h1>${bi("Compare stocks", "ಷೇರುಗಳ ಹೋಲಿಕೆ")}</h1><p>Pick up to three stocks. Prices are indexed to 100 at the start so they share one axis.</p></div></div>
+    view.innerHTML = `<div class="page-head"><div><h1>${bi("Compare stocks", "ಷೇರುಗಳ ಹೋಲಿಕೆ")}</h1><p>${bp("Pick up to three stocks. Prices are indexed to 100 at the start so they share one axis.", "ಮೂರು ಷೇರುಗಳವರೆಗೆ ಆಯ್ಕೆಮಾಡಿ. ಹೋಲಿಸಲು ಸುಲಭವಾಗುವಂತೆ ಬೆಲೆಗಳನ್ನು ಆರಂಭದಲ್ಲಿ 100 ಕ್ಕೆ ಸಮಗೊಳಿಸಲಾಗಿದೆ.")}</p></div></div>
       <div class="filters">${[0, 1, 2].map((i) => `<input list="symbolList" id="cmp${i}" placeholder="Symbol ${i + 1}" value="${esc(pre[i] || "")}" style="width:160px">`).join("")}<button class="btn primary" id="cmpGo">Compare</button></div><div id="cmpOut"></div>`;
     const go = async () => {
       const syms = [0, 1, 2].map((i) => $(`#cmp${i}`).value.trim().toUpperCase()).filter(Boolean);
@@ -626,7 +647,7 @@
         </tbody></table></div>`;
       const colors = [css("--series-1"), css("--series-2"), css("--series-3")];
       plot($("#cmpChart"), det.map((d, i) => { const c = d.chart.close, b = c.find((v) => v != null); return { type: "scatter", mode: "lines", x: d.chart.date, y: c.map((v) => (v == null ? null : (v / b) * 100)), name: d.symbol, line: { color: colors[i], width: 2 }, hovertemplate: `${d.symbol}: %{y:.1f}<extra></extra>` }; }),
-        { height: 320, yaxis: { gridcolor: css("--border"), tickformat: ".0f", title: { text: "Indexed (start = 100)" } } });
+        { height: 320, yaxis: { gridcolor: css("--border"), tickformat: ".0f", title: { text: T("Indexed (start = 100)") } } });
     };
     $("#cmpGo").addEventListener("click", go);
     if (pre.length) go();
@@ -635,8 +656,9 @@
   async function pageSwing() {
     const m = await getJSON("model.json");
     const anyPass = Object.values(m.horizons || {}).some((r) => r.gate?.passed);
-    view.innerHTML = `<div class="page-head"><div><h1>${bi("Swing prediction dashboard", "ಸ್ವಿಂಗ್ ಮುನ್ಸೂಚನೆ")}</h1><p>Separate calibrated models for 2, 5 and 10 trading days.</p></div></div>
-      ${anyPass ? "" : `<div class="notice critical"><strong>No swing model currently passes validation.</strong> Every stock therefore shows “Insufficient evidence — no recommendation”. This is the honest outcome when the data contains no reliable edge. See <a href="#/model">Model performance</a>.</div>`}
+    view.innerHTML = `<div class="page-head"><div><h1>${bi("Swing prediction dashboard", "ಸ್ವಿಂಗ್ ಮುನ್ಸೂಚನೆ")}</h1><p>${bp("Separate calibrated models for 2, 5 and 10 trading days.", "2, 5 ಮತ್ತು 10 ವಹಿವಾಟು ದಿನಗಳಿಗೆ ಪ್ರತ್ಯೇಕ ಮಾದರಿಗಳು.")}</p></div></div>
+      ${anyPass ? "" : `<div class="notice critical">${bp(`<strong>No swing model currently passes validation.</strong> Every stock therefore shows “Insufficient evidence — no recommendation”. This is the honest outcome when the data contains no reliable edge. See <a href="#/model">Model performance</a>.`,
+  `<strong>ಯಾವುದೇ ಸ್ವಿಂಗ್ ಮಾದರಿ ಸದ್ಯ ಪರೀಕ್ಷೆಯಲ್ಲಿ ಉತ್ತೀರ್ಣವಾಗಿಲ್ಲ.</strong> ಆದ್ದರಿಂದ ಎಲ್ಲಾ ಷೇರುಗಳಿಗೆ “ಸಾಕಷ್ಟು ಆಧಾರವಿಲ್ಲ — ಶಿಫಾರಸು ಇಲ್ಲ” ಎಂದು ತೋರಿಸಲಾಗಿದೆ. ದತ್ತಾಂಶದಲ್ಲಿ ವಿಶ್ವಾಸಾರ್ಹ ಸಂಕೇತ ಇಲ್ಲದಿದ್ದಾಗ ಇದೇ ಪ್ರಾಮಾಣಿಕ ಫಲಿತಾಂಶ. <a href="#/model">ಮಾದರಿ ಕಾರ್ಯಕ್ಷಮತೆ</a> ನೋಡಿ.`)}</div>`}
       <div class="grid g3">${Object.entries(m.horizons || {}).map(([h, r]) => `<div class="card"><h2>${h} trading days</h2>${r.gate?.passed ? labelPill("bullish").replace("Bullish", "Validated") : labelPill("insufficient")}
         <p class="muted">Model: ${esc(r.selected_model || "—")} · Brier skill ${fmt(r.metrics?.[r.selected_model]?.brier_skill_score, 4)}</p>
         <a class="btn" href="#/scanner">Open scanner (choose ${h}-day horizon) →</a></div>`).join("")}</div>`;
@@ -649,39 +671,50 @@
 
   function pageIntraday() {
     view.innerHTML = `<div class="page-head"><div><h1>${bi("Intraday prediction dashboard", "ದಿನದೊಳಗಿನ ಮುನ್ಸೂಚನೆ")}</h1></div></div>
-      <div class="card">${labelPill("insufficient")}<p><strong>Insufficient evidence — no recommendation.</strong></p>
-      <p>Intraday horizons (5, 15, 30 minutes, 1 hour, end of day) need an <strong>authorised intraday data feed</strong>. This free, static deployment uses end-of-day data only, so no intraday model is trained and no intraday probability is shown.
+      <div class="card">${labelPill("insufficient")}<p><strong>${T("Insufficient evidence — no recommendation.")}</strong></p>
+      ${bp(`<p>Intraday horizons (5, 15, 30 minutes, 1 hour, end of day) need an <strong>authorised intraday data feed</strong>. This free, static deployment uses end-of-day data only, so no intraday model is trained and no intraday probability is shown.
       Showing intraday predictions from daily data would be misleading.</p>
-      <p class="kn">ದಿನದೊಳಗಿನ (intraday) ಮುನ್ಸೂಚನೆಗೆ ಅಧಿಕೃತ ನೇರ ದತ್ತಾಂಶ ಬೇಕು. ಈ ಉಚಿತ ವ್ಯವಸ್ಥೆ ದಿನದ ಅಂತ್ಯದ ದತ್ತಾಂಶವನ್ನು ಮಾತ್ರ ಬಳಸುವುದರಿಂದ ದಿನದೊಳಗಿನ ಸಂಭವನೀಯತೆಯನ್ನು ತೋರಿಸಲಾಗುವುದಿಲ್ಲ.</p>
       <h3>How to enable later</h3><ul class="clean"><li>Open a broker account that offers a free API for personal use (for example Angel One SmartAPI, Upstox, Fyers or Dhan).</li>
       <li>Implement <code>MarketDataProvider.intraday()</code> in <code>pipeline/providers/</code> for that broker (credentials in environment variables only).</li>
-      <li>Run it on your own PC or server (Option B). Broker data is licensed for your personal use — do not publish it on a public website.</li></ul></div>`;
+      <li>Run it on your own PC or server (Option B). Broker data is licensed for your personal use — do not publish it on a public website.</li></ul>`,
+      `<p>ದಿನದೊಳಗಿನ ಅವಧಿಗಳ (5, 15, 30 ನಿಮಿಷ, 1 ಗಂಟೆ, ದಿನದ ಅಂತ್ಯ) ಮುನ್ಸೂಚನೆಗೆ <strong>ಅಧಿಕೃತ ನೇರ ದತ್ತಾಂಶ</strong> ಬೇಕು. ಈ ಉಚಿತ ವ್ಯವಸ್ಥೆ ದಿನದ ಅಂತ್ಯದ ದತ್ತಾಂಶವನ್ನು ಮಾತ್ರ ಬಳಸುವುದರಿಂದ ದಿನದೊಳಗಿನ ಮಾದರಿಯನ್ನು ತರಬೇತಿಗೊಳಿಸಿಲ್ಲ ಮತ್ತು ಸಂಭವನೀಯತೆ ತೋರಿಸುವುದಿಲ್ಲ.
+      ದೈನಂದಿನ ದತ್ತಾಂಶದಿಂದ ದಿನದೊಳಗಿನ ಮುನ್ಸೂಚನೆ ತೋರಿಸಿದರೆ ಅದು ತಪ್ಪುದಾರಿಗೆಳೆಯುತ್ತದೆ.</p>
+      <h3>ಮುಂದೆ ಸಕ್ರಿಯಗೊಳಿಸುವುದು ಹೇಗೆ</h3><ul class="clean"><li>ವೈಯಕ್ತಿಕ ಬಳಕೆಗೆ ಉಚಿತ API ನೀಡುವ ಬ್ರೋಕರ್ ಖಾತೆ ತೆರೆಯಿರಿ (ಉದಾ. Angel One SmartAPI, Upstox, Fyers ಅಥವಾ Dhan).</li>
+      <li>ಆ ಬ್ರೋಕರ್‌ಗಾಗಿ <code>pipeline/providers/</code> ನಲ್ಲಿ <code>MarketDataProvider.intraday()</code> ಬರೆಯಿರಿ (ಗುಪ್ತ ಮಾಹಿತಿ environment variables ನಲ್ಲಿ ಮಾತ್ರ).</li>
+      <li>ಅದನ್ನು ನಿಮ್ಮ ಸ್ವಂತ ಕಂಪ್ಯೂಟರ್ ಅಥವಾ ಸರ್ವರ್‌ನಲ್ಲಿ ಓಡಿಸಿ (ಆಯ್ಕೆ B). ಬ್ರೋಕರ್ ದತ್ತಾಂಶ ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಬಳಕೆಗೆ ಮಾತ್ರ — ಸಾರ್ವಜನಿಕ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿ ಪ್ರಕಟಿಸಬೇಡಿ.</li></ul>`)}</div>`;
   }
 
   async function pageAlerts() {
     const st = STATUS || {};
     const tg = st.steps?.telegram || {};
     const s = st.settings || {};
-    view.innerHTML = `<div class="page-head"><div><h1>${bi("Alert configuration", "ಎಚ್ಚರಿಕೆ ಸಂರಚನೆ")}</h1><p>Telegram alerts are sent by the scheduled GitHub Action, not by this website. Duplicate alerts are suppressed for 10 days.</p></div></div>
+    view.innerHTML = `<div class="page-head"><div><h1>${bi("Alert configuration", "ಎಚ್ಚರಿಕೆ ಸಂರಚನೆ")}</h1><p>${bp("Telegram alerts are sent by the scheduled GitHub Action, not by this website. Duplicate alerts are suppressed for 10 days.", "Telegram ಎಚ್ಚರಿಕೆಗಳನ್ನು ಈ ವೆಬ್‌ಸೈಟ್ ಅಲ್ಲ, ನಿಗದಿತ GitHub Action ಕಳುಹಿಸುತ್ತದೆ. ಒಂದೇ ಎಚ್ಚರಿಕೆಯನ್ನು 10 ದಿನಗಳವರೆಗೆ ಮತ್ತೆ ಕಳುಹಿಸುವುದಿಲ್ಲ.")}</p></div></div>
       <div class="grid g2"><div class="card"><h2>Current status</h2><dl class="kv"><dt>Telegram configured</dt><dd>${tg.configured ? "✔ yes" : "✖ no"}</dd>
         <dt>Last run</dt><dd>${tg.candidates ?? 0} candidates, ${tg.new ?? 0} new, ${tg.sent ?? 0} sent, ${tg.failed ?? 0} failed</dd>${tg.note ? `<dt>Note</dt><dd>${esc(tg.note)}</dd>` : ""}
         ${(tg.errors || []).length ? `<dt>Errors</dt><dd>${tg.errors.map(esc).join("<br>")}</dd>` : ""}</dl></div>
       <div class="card"><h2>Thresholds in use</h2><dl class="kv">${Object.entries(s.alerts || {}).map(([k, v]) => `<dt>${esc(k.replace(/_/g, " "))}</dt><dd>${esc(v)}</dd>`).join("") || "<dt>—</dt><dd>Run the pipeline first</dd>"}</dl>
-        <p class="muted">Change them in <code>config/settings.json</code> → <code>"alerts"</code> and commit. Schedules are in <code>.github/workflows/daily-pipeline.yml</code>.</p></div></div>
-      <div class="card section"><h2>Set up Telegram (5 minutes)</h2><ol class="clean">
+        <p class="muted">${bp(`Change them in <code>config/settings.json</code> → <code>"alerts"</code> and commit. Schedules are in <code>.github/workflows/daily-pipeline.yml</code>.`,
+          `ಇವುಗಳನ್ನು <code>config/settings.json</code> → <code>"alerts"</code> ನಲ್ಲಿ ಬದಲಿಸಿ commit ಮಾಡಿ. ವೇಳಾಪಟ್ಟಿ <code>.github/workflows/daily-pipeline.yml</code> ನಲ್ಲಿದೆ.`)}</p></div></div>
+      <div class="card section"><h2>Set up Telegram (5 minutes)</h2>${bp(`<ol class="clean">
         <li>In Telegram, open <strong>@BotFather</strong>, send <code>/newbot</code> and copy the bot token.</li>
         <li>Send any message to your new bot, then open <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> and copy <code>chat.id</code>.</li>
         <li>GitHub repository → Settings → Secrets and variables → Actions → add <code>TELEGRAM_BOT_TOKEN</code> and <code>TELEGRAM_CHAT_ID</code>.</li>
         <li>Run the workflow once. Alerts cover major order wins, important filings, negative events, strong validated signals, breakouts/breakdowns and unusual volume.</li></ol>
-        <p class="muted">Never put the token in code or in <code>settings.json</code>. Alerts are research notes, never buy/sell instructions.</p></div>`;
+        <p class="muted">Never put the token in code or in <code>settings.json</code>. Alerts are research notes, never buy/sell instructions.</p>`,
+        `<ol class="clean">
+        <li>Telegram ನಲ್ಲಿ <strong>@BotFather</strong> ತೆರೆಯಿರಿ, <code>/newbot</code> ಕಳುಹಿಸಿ ಮತ್ತು bot token ನಕಲಿಸಿ.</li>
+        <li>ನಿಮ್ಮ ಹೊಸ bot ಗೆ ಯಾವುದಾದರೂ ಸಂದೇಶ ಕಳುಹಿಸಿ, ನಂತರ <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> ತೆರೆದು <code>chat.id</code> ನಕಲಿಸಿ.</li>
+        <li>GitHub repository → Settings → Secrets and variables → Actions → <code>TELEGRAM_BOT_TOKEN</code> ಮತ್ತು <code>TELEGRAM_CHAT_ID</code> ಸೇರಿಸಿ.</li>
+        <li>Workflow ಅನ್ನು ಒಮ್ಮೆ ಓಡಿಸಿ. ದೊಡ್ಡ ಆರ್ಡರ್ ಗೆಲುವು, ಮುಖ್ಯ ಪ್ರಕಟಣೆಗಳು, ನಕಾರಾತ್ಮಕ ಘಟನೆಗಳು, ಬಲವಾದ ಪರಿಶೀಲಿತ ಸಂಕೇತಗಳು, ಬ್ರೇಕ್‌ಔಟ್/ಬ್ರೇಕ್‌ಡೌನ್ ಮತ್ತು ಅಸಾಮಾನ್ಯ ವಹಿವಾಟಿಗೆ ಎಚ್ಚರಿಕೆ ಬರುತ್ತದೆ.</li></ol>
+        <p class="muted">Token ಅನ್ನು ಕೋಡ್‌ನಲ್ಲಿ ಅಥವಾ <code>settings.json</code> ನಲ್ಲಿ ಎಂದೂ ಇಡಬೇಡಿ. ಎಚ್ಚರಿಕೆಗಳು ಸಂಶೋಧನಾ ಟಿಪ್ಪಣಿಗಳು ಮಾತ್ರ; ಖರೀದಿ/ಮಾರಾಟದ ಸೂಚನೆಗಳಲ್ಲ.</p>`)}</div>`;
   }
 
   async function pageLearn(focus) {
     const L = await getJSON(CFG.learnUrl);
-    view.innerHTML = `<div class="page-head"><div><h1>${bi("Learning centre", "ಕಲಿಕಾ ಕೇಂದ್ರ")}</h1><p>${esc(L.note_en)}</p><p class="kn">${esc(L.note_kn)}</p></div></div>
-      <div class="filters"><input type="search" id="lq" placeholder="Search: RSI, ROE, VaR, ಬೆಂಬಲ…"><label>Topic <select id="lg"><option value="">All topics</option>${Object.entries(L.groups).map(([k, g]) => `<option value="${k}">${esc(g.en)} · ${esc(g.kn)}</option>`).join("")}</select></label>
-        <label>Language <select id="ll"><option value="both">English + ಕನ್ನಡ</option><option value="en">English</option><option value="kn">ಕನ್ನಡ</option></select></label></div><div id="lout"></div>`;
-    const st = { q: "", g: "", lang: "both" };
+    view.innerHTML = `<div class="page-head"><div><h1>${bi("Learning centre", "ಕಲಿಕಾ ಕೇಂದ್ರ")}</h1><p>${bp(esc(L.note_en), esc(L.note_kn))}</p></div></div>
+      <div class="filters"><input type="search" id="lq" placeholder="Search: RSI, ROE, VaR, ಬೆಂಬಲ…"><label>Topic <select id="lg"><option value="">All topics</option>${Object.entries(L.groups).map(([k, g]) => `<option value="${k}">${esc(I18N.lang === "kn" ? g.kn : g.en)}</option>`).join("")}</select></label>
+        <label>Language <select id="ll"><option value="both">English + ಕನ್ನಡ</option><option value="en" ${I18N.lang === "en" ? "selected" : ""}>English</option><option value="kn" ${I18N.lang === "kn" ? "selected" : ""}>ಕನ್ನಡ</option></select></label></div><div id="lout"></div>`;
+    const st = { q: "", g: "", lang: I18N.lang };
     const field = (label, en, kn) => {
       const showEn = st.lang !== "kn" && en, showKn = st.lang !== "en" && kn;
       return showEn || showKn ? `<div><h4>${label}</h4>${showEn ? `<p>${esc(en)}</p>` : ""}${showKn ? `<p class="kn">${esc(kn)}</p>` : ""}</div>` : "";
@@ -692,8 +725,9 @@
       $("#lout").innerHTML = Object.entries(L.groups).map(([gk, g]) => {
         const its = items.filter((i) => i.group === gk);
         if (!its.length) return "";
-        return `<h2 class="section">${esc(g.en)} <span class="kn muted">${esc(g.kn)}</span></h2>` + its.map((i) => `<details class="learn-item" id="learn-${esc(i.id)}" ${focus === i.id ? "open" : ""}>
-          <summary><span><strong>${esc(i.en)}</strong> <span class="muted">${esc(i.full || "")}</span></span><span class="kn">${esc(i.kn)}</span></summary>
+        return `<h2 class="section">${bi(g.en, g.kn)}</h2>` + its.map((i) => `<details class="learn-item" id="learn-${esc(i.id)}" ${focus === i.id ? "open" : ""}>
+          <summary class="notranslate">${bp(`<span><strong>${esc(i.en)}</strong> <span class="muted">${esc(i.full || "")}</span></span><span class="kn muted">${esc(i.kn)}</span>`,
+            `<span><strong>${esc(i.kn)}</strong> <span class="muted">${esc(i.en)} · ${esc(i.full || "")}</span></span>`)}</summary>
           <div class="learn-body"><div class="full"><h4>Formula · ಸೂತ್ರ</h4><div class="formula">${esc(i.formula)}</div></div>
             ${field("What it measures · ಏನನ್ನು ಅಳೆಯುತ್ತದೆ", i.what, i.what_kn)}${field("How to use · ಹೇಗೆ ಬಳಸುವುದು", i.use, i.use_kn)}
             ${i.bull ? field("Bullish reading", i.bull) : ""}${i.bear ? field("Bearish reading", i.bear) : ""}${i.side ? field("Sideways market", i.side) : ""}
@@ -713,7 +747,7 @@
     const s = await getJSON("status.json", { fresh: true });
     const steps = s.steps || {};
     const kv = (o) => `<dl class="kv">${Object.entries(o || {}).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${typeof v === "object" && v !== null ? `<code>${esc(JSON.stringify(v))}</code>` : esc(v)}</dd>`).join("")}</dl>`;
-    view.innerHTML = `<div class="page-head"><div><h1>${bi("System status", "ವ್ಯವಸ್ಥೆಯ ಸ್ಥಿತಿ")}</h1><p>Every data-source failure is listed here — nothing is hidden or filled in.</p></div></div>
+    view.innerHTML = `<div class="page-head"><div><h1>${bi("System status", "ವ್ಯವಸ್ಥೆಯ ಸ್ಥಿತಿ")}</h1><p>${bp("Every data-source failure is listed here — nothing is hidden or filled in.", "ಪ್ರತಿಯೊಂದು ದತ್ತಾಂಶ ಮೂಲದ ವೈಫಲ್ಯವನ್ನು ಇಲ್ಲಿ ತೋರಿಸಲಾಗಿದೆ — ಏನನ್ನೂ ಮುಚ್ಚಿಡುವುದಿಲ್ಲ ಅಥವಾ ಕಲ್ಪಿಸುವುದಿಲ್ಲ.")}</p></div></div>
       <div class="grid g4">${[["State", s.state], ["Market date", day(s.market_date)], ["Run finished", dt(s.run_finished)], ["Duration", (s.duration_sec ?? "—") + " s"]].map(([l, v]) => `<div class="card tile"><div class="label">${l}</div><div class="value" style="font-size:1.1rem">${esc(v)}</div></div>`).join("")}</div>
       ${(s.warnings || []).length ? `<div class="notice section"><strong>Warnings</strong><ul class="clean">${s.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : ""}
       <div class="grid g2 section">
@@ -754,6 +788,16 @@
 
   async function init() {
     renderNav();
+    const ls = $("#langSel");
+    ls.value = I18N.lang;
+    ls.addEventListener("change", async () => {
+      I18N.set(ls.value);
+      cache.clear();
+      await loadStatus();
+      liveBadge();
+      route();
+    });
+    I18N.start();
     $("#menuBtn").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
     $("#themeBtn").addEventListener("click", () => {
       const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");

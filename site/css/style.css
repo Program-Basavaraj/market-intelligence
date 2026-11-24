@@ -178,3 +178,9 @@ pre { background: var(--surface-2); padding: 12px; border-radius: 8px; overflow-
   input[type="search"] { min-width: 0; width: 100%; }
 }
 @media print { .sidebar, .topbar .btn, .filters { display: none; } .app { display: block; } }
+
+/* language switch: show only the selected language */
+html[lang="kn"] .t-en, html:not([lang="kn"]) .t-kn { display: none !important; }
+html[lang="kn"] body { font-family: var(--font-kn), var(--font); }
+#langSel { font-weight: 550; }
+.nav a .t-kn, .card h2 .t-kn, .card h3 .t-kn, h1 .t-kn, h2 .t-kn, .label .t-kn, summary .t-kn { font-size: inherit; color: inherit; font-weight: inherit; }

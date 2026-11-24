@@ -29,17 +29,23 @@
       <span class="spacer"></span>
       <input type="search" id="globalSearch" placeholder="Search symbol or company…" list="symbolList" autocomplete="off" aria-label="Search stock">
       <datalist id="symbolList"></datalist>
+      <select id="langSel" aria-label="Language / ಭಾಷೆ" title="Language / ಭಾಷೆ">
+        <option value="en">English</option>
+        <option value="kn">ಕನ್ನಡ</option>
+      </select>
       <button class="btn" id="themeBtn" title="Toggle dark mode">◐</button>
     </div>
     <div id="view"><div class="loader">Loading…</div></div>
     <footer class="footer">
-      Research tool only — not investment advice, not a SEBI-registered research service, no guarantee of any price movement.
-      Analysis uses end-of-day prices; quotes marked ● are delayed (not guaranteed real-time). Both come from an unofficial source (Yahoo Finance). News shows headlines and links only.
-      <span class="kn">ಸಂಶೋಧನೆಗಾಗಿ ಮಾತ್ರ — ಹೂಡಿಕೆ ಸಲಹೆ ಅಲ್ಲ. ಬೆಲೆಗಳು ದಿನದ ಅಂತ್ಯದ (ತಡವಾದ) ದತ್ತಾಂಶ.</span>
+      <span class="t-en">Research tool only — not investment advice, not a SEBI-registered research service, no guarantee of any price movement.
+      Analysis uses end-of-day prices; quotes marked ● are delayed (not guaranteed real-time). Both come from an unofficial source (Yahoo Finance). News shows headlines and links only.</span>
+      <span class="t-kn kn">ಸಂಶೋಧನಾ ಸಾಧನ ಮಾತ್ರ — ಹೂಡಿಕೆ ಸಲಹೆ ಅಲ್ಲ, SEBI ನೋಂದಾಯಿತ ಸಂಶೋಧನಾ ಸೇವೆ ಅಲ್ಲ, ಯಾವುದೇ ಬೆಲೆ ಚಲನೆಯ ಖಾತರಿ ಇಲ್ಲ.
+      ವಿಶ್ಲೇಷಣೆ ದಿನದ ಅಂತ್ಯದ ಬೆಲೆಗಳನ್ನು ಬಳಸುತ್ತದೆ; ● ಗುರುತಿನ ದರಗಳು ತಡವಾದವು (ನೇರ ಎಂಬ ಖಾತರಿ ಇಲ್ಲ). ಎರಡೂ ಅನಧಿಕೃತ ಮೂಲದಿಂದ (Yahoo Finance). ಸುದ್ದಿಯಲ್ಲಿ ಶೀರ್ಷಿಕೆ ಮತ್ತು ಲಿಂಕ್ ಮಾತ್ರ.</span>
     </footer>
   </main>
 </div>
 <script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>
